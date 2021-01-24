@@ -1,9 +1,98 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;Miscellaneous ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq byte-compile-warnings '(cl-functions)) ;; cl is deprecated
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                    ;;;;;;;;;;;;
+;; All about packages ;;;;;;;;;;;;
+;;                    ;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Packages in emacs
+(require 'package)
+(setq package-archives
+      '(("melpa-stable" . "https://stable.melpa.org/packages/")
+	("melpa"        . "https://melpa.org/packages/")
+	("gnu"          . "https://elpa.gnu.org/packages/")
+	("org"          . "http://orgmode.org/elpa/")
+	))
+
+;; initialize built-in package management
+(package-initialize)
+
+;; update packages list if we are on a new install
+(unless package-archive-contents
+  (package-refresh-contents))
+
+;; Auto-update packages
+(use-package auto-package-update
+  :config
+  (setq auto-package-update-delete-old-versions t)
+  (setq auto-package-update-hide-results t)
+  (auto-package-update-maybe))
+
+;; Always ensure that packages are installed automatically
+(require 'use-package-ensure)
+(setq use-package-always-ensure t)
+
+; list the packages you want
+(setq package-list '(ace-window
+		     company
+		     dash-functional
+		     dired-toggle-sudo
+		     ess
+		     evil
+		     evil-easymotion
+		     hideshow-org
+		     julia-mode
+		     mixed-pitch
+		     org-download
+		     org-ref
+		     org-super-agenda
+		     persistent-scratch
+		     poporg
+		     smart-mode-line
+		     smooth-scroll
+		     smooth-scrolling
+		     use-package
+		     ws-butler
+		     zpresent
+		     magit
+		     poly-R
+		     ))
+;; undo-tree
+
+
+;; USE-PACKAGE
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
+(eval-when-compile
+  (require 'use-package))
+
+
+
+;; programmatically install/ensure installed
+;; pkgs in your personal list
+(dolist (package package-list)
+  (unless (package-installed-p package)
+    (package-install package)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Setting some paths ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;; Manually setting some variables to use. These are the same variables I'll use
 ;; throughout.
-(setenv "DB" "/home/shyun/Dropbox")
-(setenv "ORG" "/home/shyun/Dropbox/Documents/orglife")
-(setenv "FL" "/home/shyun/Dropbox/Documents/research/usc/flow-cytometry/")
-(setenv "USC" "/home/shyun/Dropbox/Documents/research/usc/")
+(setenv "DB" "/home/sangwonh/Dropbox")
+(setenv "ORG" "/home/sangwonh/Dropbox/Documents/orglife")
+(setenv "FL" "/home/sangwonh/Dropbox/Documents/research/usc/flow-cytometry/")
+(setenv "USC" "/home/sangwonh/Dropbox/Documents/research/usc/")
 
 
 ;; Copy path and environment variables from shell environment.
@@ -19,31 +108,28 @@
 ;;          (split-string-and-unquote path ":")
 ;;          exec-path)))
 
+;;;;;;;;;;;;;;;;;;;;;;
+;; Other settings  ;;;
+;;;;;;;;;;;;;;;;;;;;;;
 
-
-;; ;; Enabling line numbering in text editors
-;; (global-linum-mode 1)
+;; Enabling line numbering in text editors
 (global-display-line-numbers-mode)
-
 
 ;; Show matching parentheses
 (show-paren-mode 1)
 
-
 ;; Enabling line wrap by default
 (setq line-move-visual nil)
-
 
 ;; Setting up Emacs as an edit server, so that it `listens' for external edit requests and acts accordingly.
 (require 'server)
 (unless (server-running-p)
     (server-start))
-;; (or (server-running-p)
-;;     (server-start))
-
 
 ;; Enable ESS
-(require 'ess-site)
+ (use-package ess
+  :ensure t
+  :init (require 'ess-site))
 
 ;; ESS indentation
 (defun myindent-ess-hook ()
@@ -69,16 +155,21 @@
 
 
 ;; Enabling access to list of recently edited files
-(require 'recentf)
-(setq recentf-max-saved-items 200
-      recentf-max-menu-items 15)
-(recentf-mode +1)
+(use-package recentf
+  :config
+  (setq recentf-max-saved-items 500
+        recentf-max-menu-items 15
+        ;; disable recentf-cleanup on Emacs start, because it can cause
+        ;; problems with remote files
+        recentf-auto-cleanup 'never)
+  (recentf-mode +1))
+(setq recentf-keep '(file-remote-p file-readable-p))
+
 
 
 ; Allows colors in emacs M-x shell.
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 (add-to-list 'comint-output-filter-functions 'ansi-color-process-output)
-
 
 
 ;; hide the startup message
@@ -106,8 +197,27 @@
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
 (add-to-list 'comint-output-filter-functions 'ansi-color-process-output)
 
+;; (use-package dired
+;;   :ensure t
+;;   :config
+;;   ;; dired - reuse current buffer by pressing 'a'
+;;   (put 'dired-find-alternate-file 'disabled nil)
+
+;;   ;; ;; always delete and copy recursively
+;;   ;; (setq dired-recursive-deletes 'always)
+;;   ;; (setq dired-recursive-copies 'always)
+
+;;   ;; ;; if there is a dired buffer displayed in the next window, use its
+;;   ;; ;; current subdir, instead of the current subdir of this dired buffer
+;;   ;; (setq dired-dwim-target t)
+
+;;   ;; ;; enable some really cool extensions like C-x C-j(dired-jump)
+;;   ;; (require 'dired-x)
+;;   )
 ;; Allows switch to sudo user when browsing "dired" buffers
+(require 'dired)
 (require 'dired-toggle-sudo)
+
 
 
 ;; Make cutting and pasting use the X clipboard.
@@ -126,8 +236,6 @@
 (define-key helm-find-files-map "\t" 'helm-execute-persistent-action)
 
 
-;; Load theme
-(load-theme 'leuven t)
 
 
 ;; If the first two variables are set to something non-nil (e.g. t)
@@ -150,7 +258,7 @@
 
 
 ;; ;; Enabling in-window editing for /google chrome/ (not used now)
-;; (require 'edit-server)
+;; (use-package 'edit-server)
 ;; (edit-server-start)
 
 
@@ -221,9 +329,14 @@ Version 2017-06-02"
   (redraw-frame (selected-frame)))
 
 
+;; Require ws-butler
 (require 'ws-butler)
 (add-hook 'prog-mode-hook #'ws-butler-mode)
 
+
+;; Loads evil mode.
+(require 'evil)
+(evil-mode 1)
 
 ;; Enabling evil easy motion (easy ways to navigate)
 (evilem-default-keybindings "SPC")
@@ -231,17 +344,9 @@ Version 2017-06-02"
 
 ;; ;; Make the line number to alway show with same size, regardless of zoom in/out.
 ;; (set-face-attribute 'linum nil :height 120)
+;; ((add-hook 'org-mode-hook (lambda () (display-line-number-mode 0)))
+;; ((add-hook 'org-mode-hook (lambda () (linum-mode 1)))
 
-
-;; Changing time stamps
-(setq org-time-stamp-custom-formats
-      '("<%d %b %Y>" . "<%d/%m/%y %a %H:%M>"))
-
-
-;; Disabling certain commands because they are accidentally used sometimes and
-;; it is super annoying.
-(put 'org-columns 'disabled
-     "You asked to go into org column view, but I'd bet it was a mistake!\n")
 
 ;; Open html files in browser
 (defun open-html()
@@ -251,7 +356,6 @@ Version 2017-06-02"
     (setq html-file-path (buffer-file-name))
     (shell-command (format "xdg-open '%s'" html-file-path)))
 )
-
 
 ;; ;; Enables vim-type number increment/decrement in Evil
 ;; (define-key evil-normal-state-map (kbd "C-c +") 'evil-numbers/inc-at-pt)
@@ -295,18 +399,6 @@ Version 2017-06-02"
  (setq python-shell-interpreter "/usr/bin/python3")
 
 
-;; Wrapping region with a character (this doesn't seem to work.ve)
-(require 'wrap-region)
-(add-hook 'org-mode-hook #'wrap-region-mode)
-(wrap-region-add-wrapper "/" "/" nil 'org-mode) ; select region, hit / then region -> /region/ in org-mode
-(wrap-region-add-wrapper "=" "=" nil 'org-mode) ; select region, hit = then region -> =region= in org-mode
-(wrap-region-add-wrapper "*" "*" nil 'org-mode) ; select region, hit * then region -> *region* in org-mode
-(wrap-region-add-wrapper "_" "_" nil 'org-mode) ; select region, hit _ then region -> _region_ in org-mode
-(wrap-region-add-wrapper "+" "+" nil 'org-mode) ;
-(wrap-region-add-wrapper "~" "~" nil 'org-mode) ;
-
-
-
 ;; Putting the current buffer's file name on clipboard
 (defun my-put-file-name-on-clipboard ()
   "Put the current file name on the clipboard"
@@ -319,3 +411,207 @@ Version 2017-06-02"
         (insert filename)
         (clipboard-kill-region (point-min) (point-max)))
  (message "Copied buffer file name '%s' to the clipboard." filename))))
+
+
+;; Making the scratch buffer consistent
+(persistent-scratch-setup-default)
+(setq initial-major-mode 'org-mode)
+
+
+;; Allows for code folding (i.e. "hide-show")
+(add-hook 'prog-mode-hook #'hs-minor-mode)
+(add-hook 'R-mode-common-hook #'hs-minor-mode)
+(add-hook 'ess-mode-hook 'hs-minor-mode)
+
+(global-set-key (kbd "C-+") 'hs-toggle-hiding)
+
+;; Org-like hideshow behavior
+(add-to-list 'load-path "/home/sangwonh/repos/emacs-setup")
+(require 'hideshow-org)
+
+
+;; Make hide-show work in the middle of code blocks
+(defun toggle-fold ()
+  (interactive)
+  (save-excursion
+    (end-of-line)
+    (hs-toggle-hiding)))
+
+
+;; Makes buffer cycling via C-x <right> and C-x <left> *repeatable* i.e. C-x
+;; <right> <right> <right> works.
+
+;; The misc-cmds.el file is here:
+;; https://www.emacswiki.org/emacs/download/misc-cmds.el
+(load-library "/home/sangwonh/repos/emacs-setup/misc-cmds.el")
+(global-set-key [remap previous-buffer] 'previous-buffer-repeat)
+(global-set-key [remap next-buffer]     'next-buffer-repeat)
+
+;; ;; Remote file will be kept without testing if they still exists. Added in an
+;; ;; attempt to make emacs open/quit faster.
+;; (setq recentf-keep '(file-remote-p file-readable-p))
+
+;; ;; Automatically save recent files every 5 minutes.
+;; (run-at-time (current-time) 300 'recentf-save-list)
+
+
+;; ;; Trying to make emacs startup faster
+;; ;; Per: https://github.com/bbatsov/prelude/issues/896
+;; (eval-after-load 'tramp '(setenv "SHELL" "/bin/bash"))
+
+
+(setq remote-file-name-inhibit-cache nil)
+
+
+
+;; Trying out origami mode: https://github.com/gregsexton/origami.el
+;; (use-package 'origami)
+;; (use-package origami
+;;   :ensure t
+;;   :commands (origami-toggle-node)
+;;   :bind* (("M-m -" . origami-toggle-node)))
+;; (add-to-list 'origami-parser-alist '(R . origami-c-style-parser))
+
+
+(use-package smooth-scrolling
+  :config
+  (smooth-scrolling-mode 1))
+
+
+;; Set default
+;; (set-frame-font "Inconsolata 12" nil t)
+;; (set-frame-font "Liberation Mono-12:antialias=1")
+;; (set-face-attribute 'default nil :font "Ubuntu Mono"
+;; (set-face-attribute 'default nil
+;; 		    :font "Liberation Mono-12:antialias=1"
+;; 		    :extend t)
+;; (set-frame-font "Liberation Mono-12:antialias=1",
+;; 		:extend t
+;; 		nil t)
+
+
+(set-frame-font "Fantasque Sans Mono-12:antialias=1")
+
+
+
+;;(set-frame-font "Inconsolata-12")
+
+
+
+;; (custom-theme-set-faces
+;;  'user
+;;  '(variable-pitch ((t (:family "Open Sans" :height 180 :weight Regular))))
+;;  '(fixed-pitch ((t ( :family "Inconsolata" :slant normal :weight normal :height 1.0 :width normal)))))
+
+;; revive this!!!!
+;; (set-frame-font "Inconsolata-12")
+
+;; ;;Another way to do it.
+;; (set-face-attribute 'default nil
+;;                     :family "Inconsolata"
+;;                     :height 120
+;; 		    :width (quote condensed))
+		    ;; :width (quote condensed))
+
+;; (set-face-attribute 'default nil
+;;                     :family "Ubuntu Mono"
+;;                     :height 120
+;; 		    :width (quote ExtraCondensed))
+
+
+
+
+;; Smart Mode Line is a sexy mode-line for Emacs. It aims to be easy to read
+;; from small to large monitors by using colors, a prefix feature, and smart
+;; truncation.
+(use-package smart-mode-line
+  :config
+  (setq sml/no-confirm-load-theme t)
+  (setq sml/theme 'respectful)
+  (sml/setup))
+
+
+
+
+;; In tramp, sometimes files cannot be run.
+(setq tramp-inline-compress-start-size 1000000)
+
+
+;; KILL current buffer file and close
+;; based on http://emacsredux.com/blog/2013/04/03/delete-file-and-buffer/
+(defun delete-current-file-and-buffer ()
+  "Kill the current buffer and deletes the file it is visiting."
+  (interactive)
+  (let ((filename (buffer-file-name)))
+    (if filename
+        (if (y-or-n-p (concat "Do you really want to delete file " filename " ?"))
+            (progn
+              (delete-file filename)
+              (message "Deleted file %s." filename)
+              (kill-buffer)))
+      (message "Not a file visiting buffer!"))))
+
+
+;; Increment number at selection
+(defun increment-number-at-point ()
+  (interactive)
+  (skip-chars-backward "0-9")
+  (or (looking-at "[0-9]+")
+      (error "No number at point"))
+  (replace-match (number-to-string (1+ (string-to-number (match-string 0))))))
+
+
+;; Remove all newlines in region
+(defun remove-newlines-in-region ()
+  "Removes all newlines in the region."
+  (interactive)
+  (save-restriction
+    (narrow-to-region (point) (mark))
+    (goto-char (point-min))
+    (while (search-forward "\n" nil t) (replace-match "" nil t))))
+;; (global-set-key [f8] 'remove-newlines-in-region) ;; Not doing this
+
+
+
+;; Experimental; trying to make typing/scrolling smoother
+(setq redisplay-dont-pause t)
+(require 'smooth-scrolling)
+(smooth-scrolling-mode 1)
+
+
+
+;; Tramp and SSH
+(setq tramp-default-method "ssh")
+(tramp-set-completion-function "ssh"
+                               '((tramp-parse-sconfig "/etc/ssh_config")
+                                 (tramp-parse-sconfig "~/.ssh/config")))
+;; (Old) Tramp password is saved in
+;; ~/.authinfo.gpg
+
+;; Use Python3 by default
+(setq py-python-command "python3")
+(put 'narrow-to-region 'disabled nil)
+
+
+;(setq python-shell-interpreter "python3"
+;      python-shell-interpreter-args "-i")
+;(elpy-enable)
+
+
+;; Load theme
+;; (add-to-list 'custom-theme-load-path "~/repos/emacs-setup/themes/emacs-leuven-theme")
+(load-theme 'leuven t)		                  ; For Emacs 24+.
+;; (load-theme 'leuven-dark t)
+;; (load-theme 'misterioso)
+;; (use-package 'apropospriate)
+;; (load-theme 'apropospriate-light t)
+;; (load-theme 'apropospriate-dark t)
+
+
+;; The vanilla undo/redo was not working well with evil mode, so this is a
+;; workaround. undo-tree used to work out of the box, but now it doesn't.
+(use-package undo-fu
+  :config
+  (global-undo-tree-mode -1)
+  (define-key evil-normal-state-map "u" 'undo-fu-only-undo)
+  (define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo))

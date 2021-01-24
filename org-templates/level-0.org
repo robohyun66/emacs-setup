@@ -1,0 +1,28 @@
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="github-markdown.css"/>
+
+# From here:
+
+# https://github.com/sindresorhus/github-markdown-css
+
+# I've taken (with Alex Reinhart's help) the file, 
+
+# and went back to the original CSS file, and instead of deleting .markdown-body, replaced it with #content
+
+# Then, add
+
+
+# #content {
+# 	box-sizing: border-box;
+# 	min-width: 200px;
+# 	max-width: 980px;
+# 	margin: 0 auto;
+# 	padding: 45px;
+# }
+# @media (max-width: 767px) {
+# 	#content {
+# 		padding: 15px;
+# 	}
+# }
+
+
+# To the top of the file.

@@ -48,7 +48,7 @@
 
 
 ;; Showing helm-bibtex where the bib files are:
-(setq bibtex-completion-bibliography "/home/shyun/Dropbox/papers/references.bib")
+(setq bibtex-completion-bibliography "/home/sangwonh/Dropbox/papers/references.bib")
 ;; "/home/shyun/Dropbox/papers/all.bib"))
 
 ;; Specify where helm-bibtex can look for PDFs:
