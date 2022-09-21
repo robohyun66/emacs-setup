@@ -25,3 +25,14 @@
 
 ;; Make indent level 2
 (setq ess-default-style 'GNU)
+
+;; ;; Automatic spaceing (something is off, but this is promising)
+;; (add-hook 'R-mode-hook #'electric-operator-mode)
+;; (require 'electric-spacing)
+
+;; (with-eval-after-load 'electric-operator-mode
+;;   (electric-operator-add-rules-for-mode 'ess-mode
+;; 					(cons "<-" " <- ")
+;; 					(cons "->" " -> ")
+;; 					(cons "%>%" " %>% ")
+;; 					(cons "<" nil)))

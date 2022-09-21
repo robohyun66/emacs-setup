@@ -5,8 +5,6 @@
 ;; Automatic magit updates when files are modified
 ;; (add-hook 'after-save-hook 'magit-after-save-refresh-status t)
 
-
-
-;; Using evil-magit: https://github.com/emacs-evil/evil-magit
-(setq evil-magit-state 'motion)
-(require 'evil-magit)
+;; ;; Using evil-magit: https://github.com/emacs-evil/evil-magit (not used anymore)
+;; (setq evil-magit-state 'motion)
+;; (require 'evil-magit)

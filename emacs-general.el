@@ -27,12 +27,12 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-;; Auto-update packages
-(use-package auto-package-update
-  :config
-  (setq auto-package-update-delete-old-versions t)
-  (setq auto-package-update-hide-results t)
-  (auto-package-update-maybe))
+;; ;; Auto-update packages (not used)
+;; (use-package auto-package-update
+;;   :config
+;;   (setq auto-package-update-delete-old-versions t)
+;;   (setq auto-package-update-hide-results t)
+;;   (auto-package-update-maybe))
 
 ;; Always ensure that packages are installed automatically
 (require 'use-package-ensure)
@@ -62,9 +62,10 @@
 		     zpresent
 		     magit
 		     poly-R
+		     imenu
+		     imenu-anywhere
 		     ))
 ;; undo-tree
-
 
 ;; USE-PACKAGE
 (unless (package-installed-p 'use-package)
@@ -73,7 +74,6 @@
 
 (eval-when-compile
   (require 'use-package))
-
 
 
 ;; programmatically install/ensure installed
@@ -91,8 +91,6 @@
 ;; throughout.
 (setenv "DB" "/home/sangwonh/Dropbox")
 (setenv "ORG" "/home/sangwonh/Dropbox/Documents/orglife")
-(setenv "FL" "/home/sangwonh/Dropbox/Documents/research/usc/flow-cytometry/")
-(setenv "USC" "/home/sangwonh/Dropbox/Documents/research/usc/")
 
 
 ;; Copy path and environment variables from shell environment.
@@ -157,8 +155,8 @@
 ;; Enabling access to list of recently edited files
 (use-package recentf
   :config
-  (setq recentf-max-saved-items 500
-        recentf-max-menu-items 15
+  (setq recentf-max-saved-items 2000
+        recentf-max-menu-items 200
         ;; disable recentf-cleanup on Emacs start, because it can cause
         ;; problems with remote files
         recentf-auto-cleanup 'never)
@@ -174,6 +172,8 @@
 
 ;; hide the startup message
 (setq inhibit-startup-message t)
+(setq inhibit-startup-screen t
+      initial-buffer-choice  "~/Dropbox/Documents/orglife/todo.org")
 
 
 ;; Use ibuffer for better buffer management
@@ -187,7 +187,6 @@
 
 ;; Coloring for shell?
 (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
-
 
 
 ;; shell-mode
@@ -224,18 +223,17 @@
 (setq x-select-enable-clipboard t)
 
 
-
 ;; Enabling Helm
 (helm-mode 1)
 (global-set-key (kbd "M-x") 'helm-M-x)
 (global-set-key (kbd "C-x C-f") 'helm-find-files)
 (global-set-key (kbd "C-x b") 'helm-mini)
 (global-set-key (kbd "C-x .") 'helm-imenu-anywhere)
+;; (global-set-key (kbd "C-x .") #'imenu-anywhere)
+
 
 ;; Enabling tab for completion in helm
 (define-key helm-find-files-map "\t" 'helm-execute-persistent-action)
-
-
 
 
 ;; If the first two variables are set to something non-nil (e.g. t)
@@ -245,12 +243,10 @@
 
 ;; A space character in your query will now match any space, tab, or linebreak any number of times.
 
-;; To match words across line breaks do this
+;; To match words across line breaks do this (I'm not sure if this works)
 (setq isearch-lax-whitespace t)
 (setq isearch-regexp-lax-whitespace t)
 (setq search-whitespace-regexp "[ \t\r\n]+")
-
-
 
 
 ;; Better window navigation
@@ -449,7 +445,7 @@ Version 2017-06-02"
 
 ;; ;; Remote file will be kept without testing if they still exists. Added in an
 ;; ;; attempt to make emacs open/quit faster.
-;; (setq recentf-keep '(file-remote-p file-readable-p))
+(setq recentf-keep '(file-remote-p file-readable-p))
 
 ;; ;; Automatically save recent files every 5 minutes.
 ;; (run-at-time (current-time) 300 'recentf-save-list)
@@ -459,8 +455,25 @@ Version 2017-06-02"
 ;; ;; Per: https://github.com/bbatsov/prelude/issues/896
 ;; (eval-after-load 'tramp '(setenv "SHELL" "/bin/bash"))
 
+;; (require 'recentf)
+;; (setq recentf-auto-cleanup 'never) ;; disable before we start recentf!
+;; (recentf-mode 1)
 
-(setq remote-file-name-inhibit-cache nil)
+
+;; Tramp and SSH
+(setq tramp-default-method "ssh")
+(setq tramp-verbose 6)
+(setq helm-buffer-skip-remote-checking t) ;; from https://github.com/emacs-helm/helm/issues/749
+
+(tramp-set-completion-function "ssh"
+                               '((tramp-parse-sconfig "/etc/ssh_config")
+                                 (tramp-parse-sconfig "~/.ssh/config")))
+;; (Old) Tramp password is saved in
+;; ~/.authinfo.gpg
+
+;; In tramp, sometimes files cannot be run.
+(setq tramp-inline-compress-start-size 1000000)
+
 
 
 
@@ -533,10 +546,6 @@ Version 2017-06-02"
 
 
 
-;; In tramp, sometimes files cannot be run.
-(setq tramp-inline-compress-start-size 1000000)
-
-
 ;; KILL current buffer file and close
 ;; based on http://emacsredux.com/blog/2013/04/03/delete-file-and-buffer/
 (defun delete-current-file-and-buffer ()
@@ -580,13 +589,6 @@ Version 2017-06-02"
 
 
 
-;; Tramp and SSH
-(setq tramp-default-method "ssh")
-(tramp-set-completion-function "ssh"
-                               '((tramp-parse-sconfig "/etc/ssh_config")
-                                 (tramp-parse-sconfig "~/.ssh/config")))
-;; (Old) Tramp password is saved in
-;; ~/.authinfo.gpg
 
 ;; Use Python3 by default
 (setq py-python-command "python3")
@@ -615,3 +617,127 @@ Version 2017-06-02"
   (global-undo-tree-mode -1)
   (define-key evil-normal-state-map "u" 'undo-fu-only-undo)
   (define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo))
+
+
+
+
+
+;; ediff needs to be improved
+;; See this for more tips https://oremacs.com/2015/01/17/setting-up-ediff/
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+(setq ediff-diff-options "-w")
+
+
+
+;; Making help faster (https://eklitzke.org/making-helm-projectile-find-file-fast-in-large-projects)
+(setq projectile-enable-caching t)
+
+
+;; Make shell pop
+(global-set-key (kbd "<C-M-return>") 'shell-pop)
+
+
+;; Run crontab in emacs
+(defun crontab-e ()
+    "Run `crontab -e' in a emacs buffer."
+    (interactive)
+    (with-editor-async-shell-command "crontab -e"))
+
+
+;; Workaround for ESS's issue https://github.com/emacs-ess/ESS/issues/1074
+(setq ess-ask-for-ess-directory nil)
+
+;; Preventing Rhistory file from being created
+(setq ess-history-file nil)
+
+
+;; Trying to speed up the incredibly slow ESS + company (I think)
+(setq ess-use-flymake nil)
+(setq ess-eval-visibly-p nil)
+
+;; Still trying to speed up company mode from here: https://www.reddit.com/r/emacs/comments/m52nky/im_sorry_but_why_is_lspmode_and_company_so_slow/
+(setq company-idle-delay 0.35 ;; How long to wait before popping up
+      company-minimum-prefix-length 3 ;; Show the menu after one key press
+      )
+(setq company-global-modes '(not r-mode))
+
+;; Maybe we want to only trigger company mode using tabs.
+;; This could also be useful https://emacs.stackexchange.com/questions/13286/how-can-i-stop-the-enter-key-from-triggering-a-completion-in-company-mode ;
+
+
+
+;;
+
+
+
+;; ;; Whenever possible, split windows vertically by default
+;; ;; (https://emacs.stackexchange.com/questions/39034/prefer-vertical-splits-over-horizontal-ones)
+;; (defun split-window-sensibly-prefer-horizontal (&optional window)
+;; "Based on split-window-sensibly, but designed to prefer a horizontal split,
+;; i.e. windows tiled side-by-side."
+;;   (let ((window (or window (selected-window))))
+;;     (or (and (window-splittable-p window t)
+;;          ;; Split window horizontally
+;;          (with-selected-window window
+;;            (split-window-right)))
+;;     (and (window-splittable-p window)
+;;          ;; Split window vertically
+;;          (with-selected-window window
+;;            (split-window-below)))
+;;     (and
+;;          ;; If WINDOW is the only usable window on its frame (it is
+;;          ;; the only one or, not being the only one, all the other
+;;          ;; ones are dedicated) and is not the minibuffer window, try
+;;          ;; to split it horizontally disregarding the value of
+;;          ;; `split-height-threshold'.
+;;          (let ((frame (window-frame window)))
+;;            (or
+;;             (eq window (frame-root-window frame))
+;;             (catch 'done
+;;               (walk-window-tree (lambda (w)
+;;                                   (unless (or (eq w window)
+;;                                               (window-dedicated-p w))
+;;                                     (throw 'done nil)))
+;;                                 frame)
+;;               t)))
+;;      (not (window-minibuffer-p window))
+;;      (let ((split-width-threshold 0))
+;;        (when (window-splittable-p window t)
+;;          (with-selected-window window
+;;                (split-window-right))))))))
+
+;; (defun split-window-really-sensibly (&optional window)
+;;   (let ((window (or window (selected-window))))
+;;     (if (> (window-total-width window) (* 2 (window-total-height window)))
+;;         (with-selected-window window (split-window-sensibly-prefer-horizontal window))
+;;       (with-selected-window window (split-window-sensibly window)))))
+
+;; (setq
+;;    split-height-threshold 4
+;;    split-width-threshold 40
+;;    split-window-preferred-function 'split-window-really-sensibly)
+
+
+;; "Nice" writing environment
+(require 'olivetti)
+
+;; ;; Distraction-free screen
+(use-package olivetti
+  :init
+  (setq olivetti-body-width 150))
+;;   :config
+;;   (defun distraction-free ()
+;;     "Distraction-free writing environment"
+;;     (interactive)
+;;     (if (equal olivetti-mode nil)
+;;         (progn
+;;           (window-configuration-to-register 1)
+;;           (delete-other-windows)
+;;           (text-scale-increase 2)
+;;           (olivetti-mode t))
+;;       (progn
+;;         (jump-to-register 1)
+;;         (olivetti-mode 0)
+;;         (text-scale-decrease 2))))
+;;   :bind
+;;   (("<f9>" . distraction-free)))

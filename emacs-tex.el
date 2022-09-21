@@ -23,9 +23,20 @@
 (add-hook 'LaTeX-mode-hook 'TeX-source-correlate-mode)
 (setq TeX-source-correlate-method 'synctex)
 (setq TeX-source-correlate-start-server t)
-(setq TeX-view-program-selection '((output-pdf "Evince")))
+
+;; Using Evince (doesn't work)
+;; (setq TeX-view-program-selection '((output-pdf "Evince")))
 ;; (setq TeX-view-program-list '(("Evince" "evince --page-index=%(outpage) %o")))
 ;; (add-hook 'LaTeX-mode-hook 'TeX-PDF-mode)
+;; (setq TeX-view-program-list '(("Evince" "evince %o")))
+
+
+;; Using Evince
+;; from: https://tex.stackexchange.com/questions/161797/how-to-configure-emacs-and-auctex-to-perform-forward-and-inverse-search
+(setq TeX-view-program-selection '((output-pdf "Okular")))
+(setq TeX-view-program-list (quote (("Okular" "okular --unique %o#src:%n%b"))))
+(setq TeX-view-program-selection (quote ((engine-omega "dvips and gv") (output-dvi "xdvi") (output-pdf "Okular") (output-html "xdg-open"))))
+
 
 ;; enable line wrap
 (setq-default fill-column 80)
@@ -108,3 +119,18 @@
 ;; From here: https://www.emacswiki.org/emacs/AutoPairs#Discussion
 
 (add-hook 'LaTeX-mode-hook 'turn-on-auto-fill)
+
+
+;; Function to replace only math
+(defun latex-replace-in-math ()
+"Call `query-replace-regexp' with `isearch-filter-predicate' set to filter out matches outside LaTeX math environments."
+(interactive)
+(let ((isearch-filter-predicate
+(lambda (BEG END)
+(save-excursion (save-match-data (goto-char BEG) (texmathp)))))
+(case-fold-search nil))
+(call-interactively 'query-replace-regexp)))
+
+
+;; In multi-file latex, query for master file.
+(setq-default TeX-master t)
