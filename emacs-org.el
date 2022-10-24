@@ -239,7 +239,7 @@
           (:name "You promised"
 		 :tag ("commit"))
 	  (:name "Work"
-                :tag ("research" "usc" "cmu" "editorial" "software" "delphi"))
+                :tag ("research" "teaching" "usc" "cmu" "editorial" "software" "delphi" "grant"))
 	  (:name "Errands"
                 :tag ("errands"))
 	  (:discard (:anything))
@@ -278,6 +278,7 @@
 (setq org-refile-targets  (quote (("todo.org" :maxlevel . 2))))
 				  ;; ("meeting-notes.org" :level . 0)
 				  ;; ("research-ideas.org" :level . 1))))
+(setq org-reverse-note-order t)
 
 (setq org-completion-use-helm nil)
 (setq org-outline-path-complete-in-steps nil)
@@ -384,6 +385,8 @@
 
 ;; ;; ;; Promising but not tried yet: real-time rendering of LaTeX
 ;; ;; (add-hook 'org-mode-hook 'org-fragtog-mode)
+
+(add-hook 'org-mode-hook 'org-sticky-header-mode)
 
 
 
