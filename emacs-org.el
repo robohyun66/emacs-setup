@@ -239,7 +239,7 @@
           (:name "You promised"
 		 :tag ("commit"))
 	  (:name "Work"
-                :tag ("research" "teaching" "usc" "cmu" "editorial" "software" "delphi" "grant"))
+                :tag ("research" "teaching" "usc" "cmu" "editorial" "software" "delphi" "grant" "service"))
 	  (:name "Errands"
                 :tag ("errands"))
 	  (:discard (:anything))
@@ -366,20 +366,20 @@
 ;;         (shell-command (concat "google-chrome \"file://" filename "\"")))))
 
 ;; ;; Org-downlaod
-;; ;; (require 'org-download)
-;; (use-package org-download
-;;     :after org
-;;     :defer nil
-;;     :custom
-;;     (org-download-method 'directory)
-;;     (org-download-image-dir "/home/sangwonh/Dropbox/Documents/orglife/figures")
-;;     (org-download-heading-lvl nil)
-;;     ;; (org-image-actual-width 1000)  ;; Also see this https://www.miskatonic.org/2016/08/25/image-display-size-in-org/
-;;     :bind
-;;     ("C-M-y" . org-download-screenshot)
-;;     :config
-;;     (require 'org-download))
-;; (add-hook 'dired-mode-hook 'org-download-enable) ;; Drag-and-drop to `dired`
+;; (require 'org-download)
+(use-package org-download
+    :after org
+    :defer nil
+    :custom
+    (org-download-method 'directory)
+    ;; (org-download-image-dir "/home/sangwonh/Dropbox/Documents/orglife/figures")
+    (org-download-heading-lvl nil)
+    ;; (org-image-actual-width 1000)  ;; Also see this https://www.miskatonic.org/2016/08/25/image-display-size-in-org/
+    :bind
+    ("C-M-y" . org-download-screenshot)
+    :config
+    (require 'org-download))
+(add-hook 'dired-mode-hook 'org-download-enable) ;; Drag-and-drop to `dired`
 
 
 

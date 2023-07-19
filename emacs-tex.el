@@ -14,6 +14,9 @@
 ;;   		      company-backends)))
 
 ;; (add-hook 'LaTeX-mode-hook 'setup-latex-mode)
+(use-package tex
+  :ensure auctex)
+
 (add-hook 'after-init-hook 'global-company-mode)
 
 (with-eval-after-load "tex"

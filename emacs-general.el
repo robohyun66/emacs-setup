@@ -20,8 +20,8 @@
 	("org"          . "http://orgmode.org/elpa/")
 	))
 
-;; initialize built-in package management
-(package-initialize)
+;; initialize built-in package management (not used now)
+;; (package-initialize)
 
 ;; update packages list if we are on a new install
 (unless package-archive-contents
@@ -65,7 +65,6 @@
 		     imenu
 		     imenu-anywhere
 		     ))
-;; undo-tree
 
 ;; USE-PACKAGE
 (unless (package-installed-p 'use-package)
@@ -423,6 +422,7 @@ Version 2017-06-02"
 
 ;; Org-like hideshow behavior
 (add-to-list 'load-path "/home/sangwonh/repos/emacs-setup")
+(add-to-list 'load-path "/home/sangwonh/repos/emacs-setup/extra")
 (require 'hideshow-org)
 
 
@@ -612,11 +612,47 @@ Version 2017-06-02"
 
 ;; The vanilla undo/redo was not working well with evil mode, so this is a
 ;; workaround. undo-tree used to work out of the box, but now it doesn't.
-(use-package undo-fu
-  :config
-  (global-undo-tree-mode -1)
-  (define-key evil-normal-state-map "u" 'undo-fu-only-undo)
-  (define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo))
+;; Temporarily commenting this out..
+;; (use-package undo-fu
+;;   :config
+;;   (global-undo-tree-mode -1)
+;;   (define-key evil-normal-state-map "u" 'undo-fu-only-undo)
+;;   (define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo))
+
+(use-package evil)
+  ;; :init
+  ;;  (setq evil-undo-system 'undo-fu))
+
+(require 'undo-tree)
+(global-undo-tree-mode)
+(evil-set-undo-system 'undo-tree)
+
+;; Prevent undo tree files from polluting your git repo
+;; From here: https://www.reddit.com/r/emacs/comments/tejte0/undotree_bug_undotree_files_scattering_everywhere/
+(setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
+
+
+;; (global-undo-tree-mode)
+;; (evil-set-undo-system 'undo-tree)
+
+;; (custom-set-variables '(evil-undo-system 'undo-tree))
+;; (add-hook 'evil-local-mode-hook 'turn-on-undo-tree-mode)
+;; (global-undo-tree-mode)
+;; (add-hook 'evil-local-mode-hook 'turn-on-undo-tree-mode)
+
+
+;; (require 'undo-tree)
+;; (global-undo-tree-mode)
+;; (add-hook 'evil-local-mode-hook 'turn-on-undo-tree-mode)
+
+
+
+;; (use-package undo-fu
+;;   :config
+;;   (global-undo-tree-mode -1)
+;;   (define-key evil-normal-state-map "u" 'undo-fu-only-undo)
+;;   (define-key evil-normal-state-map "\C-r" 'undo-fu-only-redo))
+
 
 
 
@@ -741,3 +777,5 @@ Version 2017-06-02"
 ;;         (text-scale-decrease 2))))
 ;;   :bind
 ;;   (("<f9>" . distraction-free)))
+
+(require 'transpose-frame)
